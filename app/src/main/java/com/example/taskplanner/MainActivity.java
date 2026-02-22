@@ -13,8 +13,13 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Tarea> lista;
     TareaAdapter adapter;
+
+    SharedPreferences sharedPreferences;
+    Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +43,17 @@ public class MainActivity extends AppCompatActivity {
         btnPendientes = findViewById(R.id.btnPendientes);
         btnRealizadas = findViewById(R.id.btnRealizadas);
 
-        lista = new ArrayList<>();
+        // 🔹 Cargar tareas guardadas
+        sharedPreferences = getSharedPreferences("MIS_TAREAS", MODE_PRIVATE);
+        String json = sharedPreferences.getString("lista", null);
+
+        Type type = new TypeToken<ArrayList<Tarea>>() {}.getType();
+        lista = gson.fromJson(json, type);
+
+        if (lista == null) {
+            lista = new ArrayList<>();
+        }
+
         adapter = new TareaAdapter(this, lista);
         listView.setAdapter(adapter);
 
@@ -64,8 +82,7 @@ public class MainActivity extends AppCompatActivity {
                     pendientes.add(t);
                 }
             }
-            adapter = new TareaAdapter(this, pendientes);
-            listView.setAdapter(adapter);
+            listView.setAdapter(new TareaAdapter(this, pendientes));
         });
 
         // 🔎 Mostrar Realizadas
@@ -76,8 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     hechas.add(t);
                 }
             }
-            adapter = new TareaAdapter(this, hechas);
-            listView.setAdapter(adapter);
+            listView.setAdapter(new TareaAdapter(this, hechas));
         });
     }
 
@@ -86,15 +102,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
 
             String titulo = data.getStringExtra("titulo");
             String fecha = data.getStringExtra("fecha");
+            String hora = data.getStringExtra("hora");
             String descripcion = data.getStringExtra("descripcion");
+            String repeticion = data.getStringExtra("repeticion");
 
-            Tarea nueva = new Tarea(titulo, descripcion, fecha);
+            Tarea nueva = new Tarea(titulo, descripcion, fecha, hora, repeticion);
+
             lista.add(nueva);
+
             adapter.notifyDataSetChanged();
+            guardarTareas(); // 🔥 GUARDAR AUTOMÁTICAMENTE
         }
+    }
+
+    // 💾 Método para guardar tareas
+    public void guardarTareas() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String json = gson.toJson(lista);
+        editor.putString("lista", json);
+        editor.apply();
     }
 }

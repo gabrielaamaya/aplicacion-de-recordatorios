@@ -41,12 +41,27 @@
             android:layout_marginTop="10dp"
             android:minLines="3"/>
 
+        <!-- 🔥 NUEVO: Selector de repetición -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repetición"
+            android:textStyle="bold"
+            android:layout_marginTop="15dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerRepeticion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"/>
+
         <Button
             android:id="@+id/btnGuardar"
             android:text="Guardar Tarea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"/>
+            android:layout_marginTop="20dp"/>
 
     </LinearLayout>
 </ScrollView>

@@ -14,6 +14,7 @@ import java.util.Calendar;
 public class AgregarActivity extends AppCompatActivity {
 
     EditText edtTitulo, edtFecha, edtHora, edtDescripcion;
+    Spinner spinnerRepeticion;
     Button btnGuardar;
 
     Calendar calendar = Calendar.getInstance();
@@ -27,7 +28,17 @@ public class AgregarActivity extends AppCompatActivity {
         edtFecha = findViewById(R.id.edtFecha);
         edtHora = findViewById(R.id.edtHora);
         edtDescripcion = findViewById(R.id.edtDescripcion);
+        spinnerRepeticion = findViewById(R.id.spinnerRepeticion);
         btnGuardar = findViewById(R.id.btnGuardar);
+
+        // 🔥 Opciones del Spinner
+        String[] opciones = {"No repetir", "Diariamente", "Semanalmente", "Mensualmente"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                opciones
+        );
+        spinnerRepeticion.setAdapter(adapter);
 
         // 📅 Seleccionar Fecha
         edtFecha.setOnClickListener(v -> {
@@ -44,29 +55,19 @@ public class AgregarActivity extends AppCompatActivity {
             ).show();
         });
 
-        // ⏰ Seleccionar Hora (FORMATO 12 HORAS)
+        // ⏰ Seleccionar Hora
         edtHora.setOnClickListener(v -> {
-
             new TimePickerDialog(this,
                     (view, hourOfDay, minute) -> {
 
-                        // Guardamos en formato 24 interno para la alarma
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
                         calendar.set(Calendar.SECOND, 0);
 
-                        // Convertimos a 12 horas para mostrar
-                        String amPm;
-                        if (hourOfDay >= 12) {
-                            amPm = "PM";
-                        } else {
-                            amPm = "AM";
-                        }
+                        String amPm = (hourOfDay >= 12) ? "PM" : "AM";
 
                         int hora12 = hourOfDay % 12;
-                        if (hora12 == 0) {
-                            hora12 = 12;
-                        }
+                        if (hora12 == 0) hora12 = 12;
 
                         String horaFinal = String.format("%02d:%02d %s",
                                 hora12, minute, amPm);
@@ -76,7 +77,7 @@ public class AgregarActivity extends AppCompatActivity {
                     },
                     calendar.get(Calendar.HOUR_OF_DAY),
                     calendar.get(Calendar.MINUTE),
-                    false // 🔥 FALSE = quitar modo militar
+                    false
             ).show();
         });
 
@@ -84,10 +85,13 @@ public class AgregarActivity extends AppCompatActivity {
 
             String titulo = edtTitulo.getText().toString();
             String descripcion = edtDescripcion.getText().toString();
+            String fecha = edtFecha.getText().toString();
+            String hora = edtHora.getText().toString();
+            String repeticion = spinnerRepeticion.getSelectedItem().toString();
 
             if(!titulo.isEmpty() && !descripcion.isEmpty()
-                    && !edtFecha.getText().toString().isEmpty()
-                    && !edtHora.getText().toString().isEmpty()) {
+                    && !fecha.isEmpty()
+                    && !hora.isEmpty()) {
 
                 // 🔔 Programar notificación
                 Intent intentNoti = new Intent(this, NotificationReceiver.class);
@@ -103,19 +107,55 @@ public class AgregarActivity extends AppCompatActivity {
                 AlarmManager alarmManager =
                         (AlarmManager) getSystemService(ALARM_SERVICE);
 
-                alarmManager.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(),
-                        pendingIntent
-                );
+                long tiempo = calendar.getTimeInMillis();
 
-                // 📤 Regresar datos
+                switch (repeticion) {
+
+                    case "Diariamente":
+                        alarmManager.setRepeating(
+                                AlarmManager.RTC_WAKEUP,
+                                tiempo,
+                                AlarmManager.INTERVAL_DAY,
+                                pendingIntent
+                        );
+                        break;
+
+                    case "Semanalmente":
+                        alarmManager.setRepeating(
+                                AlarmManager.RTC_WAKEUP,
+                                tiempo,
+                                AlarmManager.INTERVAL_DAY * 7,
+                                pendingIntent
+                        );
+                        break;
+
+                    case "Mensualmente":
+                        alarmManager.setRepeating(
+                                AlarmManager.RTC_WAKEUP,
+                                tiempo,
+                                AlarmManager.INTERVAL_DAY * 30,
+                                pendingIntent
+                        );
+                        break;
+
+                    default:
+                        alarmManager.setExact(
+                                AlarmManager.RTC_WAKEUP,
+                                tiempo,
+                                pendingIntent
+                        );
+                        break;
+                }
+
+                // 📤 Enviar datos a MainActivity
                 Intent intent = new Intent();
                 intent.putExtra("titulo", titulo);
-                intent.putExtra("fecha", edtFecha.getText().toString());
                 intent.putExtra("descripcion", descripcion);
-                setResult(RESULT_OK, intent);
+                intent.putExtra("fecha", fecha);
+                intent.putExtra("hora", hora);
+                intent.putExtra("repeticion", repeticion);
 
+                setResult(RESULT_OK, intent);
                 finish();
 
             } else {

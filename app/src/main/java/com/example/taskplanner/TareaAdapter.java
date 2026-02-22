@@ -24,13 +24,21 @@ public class TareaAdapter extends ArrayAdapter<Tarea> {
 
         TextView titulo = convertView.findViewById(R.id.txtTitulo);
         TextView descripcion = convertView.findViewById(R.id.txtDescripcion);
-        TextView fechaHora = convertView.findViewById(R.id.txtFechaHora);
+        TextView fecha = convertView.findViewById(R.id.txtFecha);
+        TextView hora = convertView.findViewById(R.id.txtHora);
+        TextView mensajeHora = convertView.findViewById(R.id.txtMensajeHora);
         CheckBox check = convertView.findViewById(R.id.checkRealizada);
 
+        // 🔹 Asignar datos
         titulo.setText(tarea.titulo);
         descripcion.setText(tarea.descripcion);
-        fechaHora.setText(tarea.fecha);
 
+        fecha.setText("📅 " + tarea.fecha);
+        hora.setText("⏰ " + tarea.hora);
+        mensajeHora.setText("Se debe realizar a las " + tarea.hora);
+
+        // 🔹 Estado del Check
+        check.setOnCheckedChangeListener(null);
         check.setChecked(tarea.realizada);
 
         check.setOnCheckedChangeListener((buttonView, isChecked) -> {
