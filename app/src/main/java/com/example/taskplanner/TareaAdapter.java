@@ -37,12 +37,30 @@ public class TareaAdapter extends ArrayAdapter<Tarea> {
         hora.setText("⏰ " + tarea.hora);
         mensajeHora.setText("Se debe realizar a las " + tarea.hora);
 
-        // 🔹 Estado del Check
+        // 🔹 Evitar reciclado incorrecto
         check.setOnCheckedChangeListener(null);
         check.setChecked(tarea.realizada);
 
+        // 🔒 Si ya está realizada no permitir desmarcar
+        if (tarea.realizada) {
+            check.setEnabled(false);
+        } else {
+            check.setEnabled(true);
+        }
+
+        // ✔ Cuando el usuario marca
         check.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            tarea.realizada = isChecked;
+            if (isChecked) {
+                tarea.realizada = true;
+
+                // bloquear después de marcar
+                check.setEnabled(false);
+
+                // guardar cambios
+                if (getContext() instanceof MainActivity) {
+                    ((MainActivity) getContext()).guardarTareas();
+                }
+            }
         });
 
         return convertView;

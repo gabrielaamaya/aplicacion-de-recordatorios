@@ -2,12 +2,12 @@ package com.example.taskplanner;
 
 public class Tarea {
 
-    String titulo;
-    String descripcion;
-    String fecha;
-    String hora;
-    String repeticion;
-    boolean realizada;
+    public String titulo;
+    public String descripcion;
+    public String fecha;
+    public String hora;
+    public String repeticion;
+    public boolean realizada = false;
 
     public Tarea(String titulo, String descripcion, String fecha, String hora, String repeticion) {
         this.titulo = titulo;
