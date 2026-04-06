@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
-
 
     <application
         android:allowBackup="true"
@@ -18,9 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskPlanner">
 
-        <!-- MainActivity -->
+        <!-- LOGIN (Pantalla principal) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,11 +25,22 @@
             </intent-filter>
         </activity>
 
-        <!-- AgregarActivity -->
+        <!-- REGISTRO -->
+        <activity
+            android:name=".RegistroActivity"
+            android:exported="false"/>
+
+        <!-- MAIN -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"/>
+
+        <!-- AGREGAR -->
         <activity
             android:name=".AgregarActivity"
             android:exported="false"/>
 
+        <!-- NOTIFICACIONES -->
         <receiver android:name=".NotificationReceiver"/>
 
     </application>
